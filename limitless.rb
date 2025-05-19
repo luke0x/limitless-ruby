@@ -52,13 +52,14 @@ end
 # Convert a Limitless transcript JSON file to a side-car .vtt file in the
 # same directory. Headings are ignored, only spoken blockquotes are kept.
 # Returns the written VTT path, or nil if it already exists.
-def json_to_vtt(json_path)
+def json_to_vtt(json_path, outdir = nil)
   data = JSON.parse(File.read(json_path))
   ll   = lifelog_from(data)
   id   = ll.fetch("id")
   start_iso = ll["startTime"]
   end_iso   = ll["endTime"]
-  vtt_path  = File.join(File.dirname(json_path), "#{id}.vtt")
+  base_dir  = outdir || File.dirname(json_path)
+  vtt_path  = File.join(base_dir, "#{id}.vtt")
 
   # Skip if the target already exists and is non-empty.
   return nil if File.size?(vtt_path) # File.size? is nil for 0-byte or non-existent
@@ -102,13 +103,14 @@ end
 #   Their utterance
 # – A blank line is inserted whenever the speaker changes.
 # Returns the written .txt path, or nil if it already exists.
-def json_to_txt(json_path)
+def json_to_txt(json_path, outdir = nil)
   data     = JSON.parse(File.read(json_path))
   ll       = lifelog_from(data)
   id       = ll.fetch("id")
   start_iso = ll["startTime"]
   end_iso   = ll["endTime"]
-  txt_path = File.join(File.dirname(json_path), "#{id}.txt")
+  base_dir = outdir || File.dirname(json_path)
+  txt_path = File.join(base_dir, "#{id}.txt")
 
   return nil if File.size?(txt_path)
 
@@ -148,11 +150,12 @@ end
 # Simply extracts the "markdown" field of the lifelog (if present) and writes
 # it verbatim. Returns the written .md path, or nil if it already exists.
 
-def json_to_md(json_path)
+def json_to_md(json_path, outdir = nil)
   data = JSON.parse(File.read(json_path))
   ll   = lifelog_from(data)
   id   = ll.fetch("id")
-  md_path = File.join(File.dirname(json_path), "#{id}.md")
+  base_dir = outdir || File.dirname(json_path)
+  md_path = File.join(base_dir, "#{id}.md")
 
   return nil if File.size?(md_path)
 
@@ -187,7 +190,7 @@ def process_files_for_conversion(args, options, conversion_method, extension_nam
     base_name = File.basename(path, '.json')
     progress_prefix = "[#{idx + 1}/#{total}] #{base_name}"
     begin
-      output_path = conversion_method.call(path)
+      output_path = conversion_method.call(path, options[:outdir])
       if output_path.nil?
         puts "#{progress_prefix}: Skipped existing .#{extension_name}"
         skipped_count += 1
@@ -485,13 +488,6 @@ def run_convert(fmt, files, opts = {})
   end
 
   outdir = opts[:outdir]
-  if outdir
-    FileUtils.mkdir_p(outdir)
-    # Temporarily chdir for convenience
-    Dir.chdir(outdir) do
-      process_files_for_conversion(files, opts, conv_method, ext_name, "#{fmt.upcase} conversion")
-    end
-  else
-    process_files_for_conversion(files, opts, conv_method, ext_name, "#{fmt.upcase} conversion")
-  end
+  FileUtils.mkdir_p(outdir) if outdir
+  process_files_for_conversion(files, opts, conv_method, ext_name, "#{fmt.upcase} conversion")
 end
