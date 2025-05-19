@@ -3,8 +3,7 @@
 #
 # Incrementally sync all your Limitless lifelogs (a.k.a. transcripts).
 #
-#   ruby limitless_sync.rb [--dir DIR] [--since 2025‑01‑01] [--until 2025‑05‑11] \
-#                          [--poll 10]
+#   ruby limitless.rb sync [--dir DIR] [--since …] [--until …] [--poll 10]
 #
 #   --dir   Download folder (default: ./transcripts)
 #   --since / --until  Restrict the range (ISO date/time or YYYY‑MM‑DD)
