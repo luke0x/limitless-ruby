@@ -159,7 +159,7 @@ def json_to_md(json_path)
   markdown = ll["markdown"]
   raise "No markdown field present in lifelog #{id}." if markdown.nil? || markdown.empty?
 
-  # Normalise newlines to \n for consistency
+  # Normalize newlines to \n for consistency
   content = markdown.gsub(/\r?\n/, "\n")
   File.write(md_path, content)
   md_path
