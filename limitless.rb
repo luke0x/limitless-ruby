@@ -13,7 +13,8 @@
 # Environment:
 #   LIMITLESS_API_KEY   – required
 #
-# Only std‑lib: net/http, uri, json, optparse, time, set, fileutils.
+# Only std‑lib: net/http, uri, json, optparse, time, set, fileutils, io/console.
+# No gems required – add them here if that ever changes.
 
 require "net/http"
 require "uri"
@@ -22,6 +23,7 @@ require "time"
 require "optparse"
 require "fileutils"
 require "set"
+require "io/console"
 
 API_BASE = "https://api.limitless.ai/v1"
 API_KEY  = ENV["LIMITLESS_API_KEY"] or abort "Set LIMITLESS_API_KEY"
