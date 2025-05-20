@@ -245,45 +245,47 @@ end
 # Global help / top-level usage
 # ---------------------------------------------------------------------------
 
-if ARGV.empty?
-  puts "usage: limitless <sync|convert>    (use --help for details)"
-  exit 0
-end
-
-if %w[-h --help help].include?(ARGV[0])
-  puts "Limitless – Swiss-army knife for your lifelogs\n"
-  puts "Commands and options:\n"
-  puts build_sync_parser.to_s
-  puts
-  puts build_convert_parser.to_s
-  exit 0
-end
-
-cmd = ARGV.shift or abort "usage: limitless <sync|convert> …"
-
-case cmd
-when "sync"
-  sync_opts = {}
-  build_sync_parser(sync_opts).parse!(ARGV)
-  # Defer actual execution until the end of the file so that all helper
-  # methods (e.g. sync_once) are defined before we call them.
-  at_exit { run_sync(sync_opts) }
-
-when "convert"
-  # Show convert command help if requested before specifying fmt
-  if ARGV.empty? || %w[-h --help].include?(ARGV[0])
-    puts build_convert_parser
+if __FILE__ == $PROGRAM_NAME
+  if ARGV.empty?
+    puts "usage: limitless <sync|convert>    (use --help for details)"
     exit 0
   end
 
-  fmt = ARGV.shift
+  if %w[-h --help help].include?(ARGV[0])
+    puts "Limitless – Swiss-army knife for your lifelogs\n"
+    puts "Commands and options:\n"
+    puts build_sync_parser.to_s
+    puts
+    puts build_convert_parser.to_s
+    exit 0
+  end
 
-  convert_opts = {}
-  build_convert_parser(convert_opts).parse!(ARGV)
-  at_exit { run_convert(fmt, ARGV, convert_opts) }
+  cmd = ARGV.shift or abort "usage: limitless <sync|convert> …"
 
-else
-  abort "unknown command #{cmd.inspect}"
+  case cmd
+  when "sync"
+    sync_opts = {}
+    build_sync_parser(sync_opts).parse!(ARGV)
+    # Defer actual execution until the end of the file so that all helper
+    # methods (e.g. sync_once) are defined before we call them.
+    at_exit { run_sync(sync_opts) }
+
+  when "convert"
+    # Show convert command help if requested before specifying fmt
+    if ARGV.empty? || %w[-h --help].include?(ARGV[0])
+      puts build_convert_parser
+      exit 0
+    end
+
+    fmt = ARGV.shift
+
+    convert_opts = {}
+    build_convert_parser(convert_opts).parse!(ARGV)
+    at_exit { run_convert(fmt, ARGV, convert_opts) }
+
+  else
+    abort "unknown command #{cmd.inspect}"
+  end
 end
 
 def request_json(path, params = {})
